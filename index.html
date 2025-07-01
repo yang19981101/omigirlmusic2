@@ -129,8 +129,8 @@
 
     function onPlayerStateChange(event) {
         if(event.data === YT.PlayerState.ENDED) {
-            // 影片播完自動跳下一首
             playNextVideo();
+            player.playVideo();  // 保證自動播放下一首
         }
     }
 
@@ -157,6 +157,7 @@
 
             // 播放第一首歌
             playNextVideo();
+            player.playVideo();
         } else {
             errorMsg.innerText = "密碼錯誤，再試試看吧～";
         }

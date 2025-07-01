@@ -80,22 +80,16 @@
     "或許這樣的關心很傻，但對妳的在意從來沒打過折扣。",
     "願這一刻，妳感受到真心與溫暖。"
   ];
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
-  document.getElementById('quote').innerText = quote;
+  document.getElementById('quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
 
-  // 隨機 YouTube 歌曲 (不自動播放)
+  // 隨機 YouTube 歌曲
   const videoIds = [
-    "DY2eiv9rHF4",  // 我們的愛情
-    "E9yi19u0Y6o",  // 第二首
-    "XIYTWH_iUqU",  // 第三首
-    "pwvoH4aGbmE",  // 第四首
-    "CpodRBeFl3c",  // 第五首
-    "XIYTWH_iUqU",  // 第六首（如需更換可改）
-    "qzfi7cM4zW0"   // 第七首
+    "DY2eiv9rHF4", "E9yi19u0Y6o", "XIYTWH_iUqU",
+    "pwvoH4aGbmE", "CpodRBeFl3c", "XIYTWH_iUqU", "qzfi7cM4zW0"
   ];
   const selectedId = videoIds[Math.floor(Math.random() * videoIds.length)];
   document.getElementById('player').src = `https://www.youtube.com/embed/${selectedId}?rel=0&modestbranding=1`;
-  
+
   // 雪花動畫
   const canvas = document.getElementById('snow');
   const ctx = canvas.getContext('2d');

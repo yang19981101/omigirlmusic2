@@ -185,16 +185,22 @@
 
     function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
-            videoId: '',
+            videoId: pairs[0].videoId,
             playerVars: {
-                'autoplay': 0,
-                'controls': 1,
-                'rel': 0,
-                'showinfo': 0,
-                'modestbranding': 1,
-                'loop': 0
+                autoplay: 1,
+                controls: 1,
+                rel: 0,
+                showinfo: 0,
+                modestbranding: 1,
+                loop: 0,
+                mute: 1
             },
             events: {
+                'onReady': function(event) {
+                    event.target.mute();
+                    initPlaylist();
+                    playNext();
+                },
                 'onStateChange': function(event) {
                     if(event.data === YT.PlayerState.ENDED) {
                         playNext();
@@ -210,8 +216,7 @@
         if(input === passwordCorrect) {
             document.getElementById("passwordPage").style.display = "none";
             document.getElementById("surprisePage").style.display = "block";
-            initPlaylist();
-            playNext();
+            // 影片會在onReady自動播放
         } else {
             errorMsg.innerText = "密碼錯誤，再試試看吧～";
         }
@@ -262,26 +267,4 @@
 
             if (flake.y > height) {
                 flake.y = -flake.radius;
-                flake.x = Math.random() * width;
-            }
-            if (flake.x > width) flake.x = 0;
-            else if (flake.x < 0) flake.x = width;
-
-            ctx.beginPath();
-            ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${flake.opacity})`;
-            ctx.fill();
-        });
-
-        requestAnimationFrame(draw);
-    }
-
-    window.addEventListener('resize', init);
-
-    init();
-    draw();
-})();
-</script>
-
-</body>
-</html>
+                flake.x = Math.random

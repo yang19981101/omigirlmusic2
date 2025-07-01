@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>屬於妳的專屬驚喜</title>
+<style>
+    body { 
+        background-color: #fff0f5; 
+        font-family: "微軟正黑體", sans-serif; 
+        text-align: center; 
+        padding: 60px 20px; 
+        color: #9b095c;
+        user-select: none;
+    }
+    h1 { font-size: 38px; margin-bottom: 20px; }
+    p { font-size: 28px; margin-bottom: 30px; line-height: 1.5em; }
+    input {
+        padding: 12px 15px; 
+        font-size: 20px; 
+        border-radius: 8px; 
+        border: 2px solid #9b095c; 
+        width: 240px; 
+        text-align: center;
+        outline: none;
+    }
+    button {
+        padding: 12px 30px; 
+        font-size: 22px; 
+        border-radius: 10px; 
+        background-color: #d81e5b; 
+        color: white; 
+        border: none; 
+        cursor: pointer;
+        margin-top: 15px;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #b21344;
+    }
+    #errorMsg {
+        color: #c62828; 
+        margin-top: 12px;
+        height: 24px;
+        font-weight: 600;
+    }
+    #surprisePage { display: none; }
+
+    .heart {
+        font-size: 70px;
+        color: #d81e5b;
+        animation: heartbeat 1.3s infinite;
+        margin: 25px 0;
+        user-select: none;
+    }
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+    }
+</style>
+</head>
+<body>
+
+<div id="passwordPage">
+    <h1>🎁 有份屬於妳的小驚喜</h1>
+    <p>輸入妳專屬的 8 位數密碼<br>(小提示：那是妳最重要的日子)</p>
+    <input type="password" id="passwordInput" placeholder="例如 19981101" autocomplete="off" />
+    <br />
+    <button onclick="checkPassword()">解鎖</button>
+    <p id="errorMsg"></p>
+</div>
+
+<div id="surprisePage">
+    <h1>給今天辛苦上班的妳 💪</h1>
+    <p id="quote"></p>
+    <div class="heart">❤️</div>
+
+    <div id="player"></div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    const passwordCorrect = "19981101";
+
+    const quotes = [
+        "忙碌的妳，記得別忘了喘口氣，我一直在這裡默默支持。",
+        "就算世界再亂，至少我希望成為妳最安定的避風港。",
+        "妳的堅強是我見過最美的風景，請相信妳沒那麼孤單。",
+        "今天不管多累，記得還有一個人想妳的笑容。",
+        "夜班再晚，也願這份溫柔陪妳渡過黑夜。",
+        "妳看不見的努力，我都看在眼裡，也深深佩服。",
+        "這世界雖然複雜，妳的真誠和熱情卻最值得珍惜。"
+    ];
+
+    // 你給的7首YouTube影片ID（從連結提取）
+    const videoIds = [
+        "DY2eiv9rHF4",
+        "E9yi19u0Y6o",
+        "XIYTWH_iUqU",
+        "pwvoH4aGbmE",
+        "CpodRBeFl3c",
+        "XIYTWH_iUqU",
+        "qzfi7cM4zW0"
+    ];
+
+    let player;
+    let currentVideoIndex = null;
+
+    function onYouTubeIframeAPIReady() {
+        // 初始化但不播放，等密碼解鎖後播放
+        player = new YT.Player('player', {
+            height: '240',
+            width: '426',
+            videoId: '',
+            playerVars: {
+                'autoplay': 0,
+                'controls': 1,
+                'rel': 0,
+                'showinfo': 0,
+                'modestbranding': 1,
+                'loop': 1,
+                'playlist': ''
+            },
+            events: {
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+
+    function onPlayerStateChange(event) {
+        if(event.data === YT.PlayerState.ENDED) {
+            // 影片播完自動跳下一首
+            playNextVideo();
+        }
+    }
+
+    function playNextVideo() {
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * videoIds.length);
+        } while(nextIndex === currentVideoIndex);
+        currentVideoIndex = nextIndex;
+        const vid = videoIds[currentVideoIndex];
+        player.loadVideoById(vid);
+    }
+
+    function checkPassword() {
+        const input = document.getElementById("passwordInput").value.trim();
+        const errorMsg = document.getElementById("errorMsg");
+        if(input === passwordCorrect) {
+            document.getElementById("passwordPage").style.display = "none";
+            document.getElementById("surprisePage").style.display = "block";
+
+            // 隨機暖心語錄
+            const quoteIndex = Math.floor(Math.random() * quotes.length);
+            document.getElementById("quote").innerText = quotes[quoteIndex];
+
+            // 播放第一首歌
+            playNextVideo();
+        } else {
+            errorMsg.innerText = "密碼錯誤，再試試看吧～";
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -5,32 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>屬於妳的專屬驚喜</title>
 <style>
-    body { 
-        background-color: #fff0f5; 
-        font-family: "微軟正黑體", sans-serif; 
-        text-align: center; 
-        padding: 60px 20px; 
+    body, html {
+        margin: 0; padding: 0; height: 100%;
+        overflow-x: hidden;
+        background: #fff0f5;
+        position: relative;
+        font-family: "微軟正黑體", sans-serif;
         color: #9b095c;
         user-select: none;
+        text-align: center;
+        padding: 60px 20px;
     }
-    h1 { font-size: 38px; margin-bottom: 20px; }
-    p { font-size: 28px; margin-bottom: 30px; line-height: 1.5em; }
+    #snow-canvas {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    }
+    #passwordPage, #surprisePage {
+        position: relative;
+        z-index: 1;
+    }
+    h1 {
+        font-size: 38px;
+        margin-bottom: 20px;
+    }
+    p {
+        font-size: 28px;
+        margin-bottom: 30px;
+        line-height: 1.5em;
+    }
     input {
-        padding: 12px 15px; 
-        font-size: 20px; 
-        border-radius: 8px; 
-        border: 2px solid #9b095c; 
-        width: 240px; 
+        padding: 12px 15px;
+        font-size: 20px;
+        border-radius: 8px;
+        border: 2px solid #9b095c;
+        width: 240px;
         text-align: center;
         outline: none;
     }
     button {
-        padding: 12px 30px; 
-        font-size: 22px; 
-        border-radius: 10px; 
-        background-color: #d81e5b; 
-        color: white; 
-        border: none; 
+        padding: 12px 30px;
+        font-size: 22px;
+        border-radius: 10px;
+        background-color: #d81e5b;
+        color: white;
+        border: none;
         cursor: pointer;
         margin-top: 15px;
         transition: background-color 0.3s ease;
@@ -39,13 +60,11 @@
         background-color: #b21344;
     }
     #errorMsg {
-        color: #c62828; 
+        color: #c62828;
         margin-top: 12px;
         height: 24px;
         font-weight: 600;
     }
-    #surprisePage { display: none; }
-
     .heart {
         font-size: 70px;
         color: #d81e5b;
@@ -61,6 +80,8 @@
 </head>
 <body>
 
+<canvas id="snow-canvas"></canvas>
+
 <div id="passwordPage">
     <h1>🎁 有份屬於妳的小驚喜</h1>
     <p>輸入妳專屬的 8 位數密碼<br>(小提示：那是妳最重要的日子)</p>
@@ -70,7 +91,7 @@
     <p id="errorMsg"></p>
 </div>
 
-<div id="surprisePage">
+<div id="surprisePage" style="display:none;">
     <h1>給今天辛苦上班的妳 💪</h1>
     <p id="quote"></p>
     <div class="heart">❤️</div>
@@ -82,7 +103,6 @@
 <script>
     const passwordCorrect = "19981101";
 
-    // 7組語錄與對應 YouTube 影片 ID
     const pairs = [
         { quote: "忙碌的妳，記得別忘了喘口氣，我一直在這裡默默支持。", videoId: "DY2eiv9rHF4" },
         { quote: "就算世界再亂，至少我希望成為妳最安定的避風港。", videoId: "E9yi19u0Y6o" },
@@ -94,29 +114,26 @@
     ];
 
     let player;
-    let playlist = [];  // 洗牌後的順序
+    let playlist = [];
     let currentIndex = -1;
 
-    // 洗牌函數 (Fisher–Yates shuffle)
     function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
+        for (let i = array.length -1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i+1));
             [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
     }
 
-    // 初始化洗牌
     function initPlaylist() {
         playlist = shuffle([...Array(pairs.length).keys()]);
         currentIndex = -1;
     }
 
-    // 播放下一首
     function playNext() {
         currentIndex++;
         if(currentIndex >= playlist.length) {
-            initPlaylist();  // 全播完再洗牌重來
+            initPlaylist();
             currentIndex = 0;
         }
         const idx = playlist[currentIndex];
@@ -154,13 +171,77 @@
         if(input === passwordCorrect) {
             document.getElementById("passwordPage").style.display = "none";
             document.getElementById("surprisePage").style.display = "block";
-
             initPlaylist();
             playNext();
         } else {
             errorMsg.innerText = "密碼錯誤，再試試看吧～";
         }
     }
+</script>
+
+<script>
+(function() {
+    const canvas = document.getElementById('snow-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let snowflakes = [];
+
+    function random(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function init() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        snowflakes = [];
+        for (let i = 0; i < 120; i++) {
+            snowflakes.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: random(1, 4),
+                speedY: random(0.5, 1.5),
+                speedX: random(-0.5, 0.5),
+                opacity: random(0.3, 0.9),
+                angle: Math.random() * 2 * Math.PI,
+                angleSpeed: random(0.01, 0.03)
+            });
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+        ctx.shadowBlur = 2;
+
+        snowflakes.forEach(flake => {
+            flake.angle += flake.angleSpeed;
+            flake.x += flake.speedX + Math.sin(flake.angle) * 0.3;
+            flake.y += flake.speedY;
+
+            if (flake.y > height) {
+                flake.y = -flake.radius;
+                flake.x = Math.random() * width;
+            }
+            if (flake.x > width) flake.x = 0;
+            else if (flake.x < 0) flake.x = width;
+
+            ctx.beginPath();
+            ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${flake.opacity})`;
+            ctx.fill();
+        });
+
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', init);
+
+    init();
+    draw();
+})();
 </script>
 
 </body>

@@ -1,143 +1,160 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>屬於妳的專屬驚喜</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      overflow-x: hidden;
-      background: linear-gradient(#f8cdd9, #ffd1dc);
-      font-family: "微軟正黑體", sans-serif;
-      color: #fff;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    h1 {
-      font-size: 36px;
-      margin-bottom: 20px;
-    }
-    p {
-      font-size: 24px;
-      margin: 10px;
-      padding: 0 20px;
-    }
-    .video-wrapper {
-      position: relative;
-      width: 90%;
-      max-width: 400px;
-      padding-top: 56.25%;
-    }
-    .video-wrapper iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    }
-    #content {
-      position: relative;
-      z-index: 2;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>屬於妳的專屬驚喜</title>
+    <style>
+        body {
+            font-family: "微軟正黑體", sans-serif;
+            background-color: #fce4ec;
+            text-align: center;
+            padding-top: 100px;
+            color: #c2185b;
+            overflow: hidden;
+        }
+        #passwordPage, #surprisePage {
+            display: none;
+        }
+        h1 {
+            font-size: 36px;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
 </head>
 <body>
 
 <canvas id="snow"></canvas>
 
-<div id="content">
-  <h1>給今天的妳 💖</h1>
-  <p id="quote"></p>
+<div id="passwordPage">
+    <h1>🎁 有一份小驚喜在等妳</h1>
+    <p>請輸入一組8位數字密碼<br />(提示：一個屬於妳的日子)</p>
+    <input type="password" id="passwordInput" placeholder="例如19981101" />
+    <br />
+    <button onclick="checkPassword()">解鎖</button>
+    <p id="errorMsg" style="color:red;"></p>
+</div>
 
-  <div class="video-wrapper">
-    <iframe id="player" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-  </div>
+<div id="surprisePage">
+    <h1 class="fade-in">給今天的妳 💖</h1>
+    <p id="quote" class="fade-in"></p>
+    <audio id="bgMusic" src="music.mp3" autoplay></audio>
 </div>
 
 <script>
-  // 隨機語錄
-  const quotes = [
-    "有時候，妳的不經意努力，就是我最深刻的感動。",
-    "這世界很亂，但我只想成為妳的平靜角落。",
-    "小夜的妳辛苦了，願我的文字成為妳的小確幸。",
-    "不管今天怎樣，都想讓妳知道，有人默默在乎妳。",
-    "每次妳笑，我的世界都變亮一點。",
-    "或許這樣的關心很傻，但對妳的在意從來沒打過折扣。",
-    "願這一刻，妳感受到真心與溫暖。"
-  ];
-  document.getElementById('quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
-
-  // 隨機 YouTube 歌曲
-  const videoIds = [
-    "DY2eiv9rHF4", "E9yi19u0Y6o", "XIYTWH_iUqU",
-    "pwvoH4aGbmE", "CpodRBeFl3c", "XIYTWH_iUqU", "qzfi7cM4zW0"
-  ];
-  const selectedId = videoIds[Math.floor(Math.random() * videoIds.length)];
-  document.getElementById('player').src = `https://www.youtube.com/embed/${selectedId}?rel=0&modestbranding=1`;
-
-  // 雪花動畫
-  const canvas = document.getElementById('snow');
-  const ctx = canvas.getContext('2d');
-  let width, height;
-  let snowflakes = [];
-
-  function initSnow() {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-    snowflakes = [];
-    for (let i = 0; i < 100; i++) {
-      snowflakes.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        r: Math.random() * 4 + 1,
-        d: Math.random() * 1 + 0.5
-      });
+    // 密碼檢查
+    document.getElementById("passwordPage").style.display = "block";
+    function checkPassword() {
+        var pwd = document.getElementById("passwordInput").value;
+        if (pwd === "19981101") {
+            document.getElementById("passwordPage").style.display = "none";
+            document.getElementById("surprisePage").style.display = "block";
+            playMusic();
+            showQuote();
+        } else {
+            document.getElementById("errorMsg").innerText = "密碼錯囉，再想想看喔！";
+        }
     }
-  }
 
-  function drawSnow() {
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    snowflakes.forEach(flake => {
-      ctx.moveTo(flake.x, flake.y);
-      ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
-    });
-    ctx.fill();
-    moveSnow();
-  }
+    // 隨機語錄
+    const quotes = [
+        "有時候，妳的不經意努力，就是我最深刻的感動。",
+        "這世界很亂，但我只想成為妳的平靜角落。",
+        "小夜的妳辛苦了，願我的文字成為妳的小確幸。",
+        "不管今天怎樣，都想讓妳知道，有人默默在乎妳。",
+        "每次妳笑，我的世界都變亮一點。",
+        "或許這樣的關心很傻，但對妳的在意從來沒打過折扣。",
+        "願這一刻，妳感受到真心與溫暖。"
+    ];
+    let lastQuoteIndex = -1;
 
-  function moveSnow() {
-    snowflakes.forEach(flake => {
-      flake.y += flake.d;
-      flake.x += Math.sin(flake.y * 0.01);
-      if (flake.y > height) {
-        flake.y = -flake.r;
-        flake.x = Math.random() * width;
-      }
-    });
-  }
+    function showQuote() {
+        let index;
+        do {
+            index = Math.floor(Math.random() * quotes.length);
+        } while (index === lastQuoteIndex);
+        lastQuoteIndex = index;
+        document.getElementById("quote").innerText = quotes[index];
+    }
 
-  window.addEventListener('resize', initSnow);
-  initSnow();
-  setInterval(drawSnow, 33);
+    // 播音樂 + 當音樂結束換語錄重播
+    function playMusic() {
+        const music = document.getElementById("bgMusic");
+        music.play();
+        music.onended = function() {
+            showQuote();
+            music.currentTime = 0;
+            music.play();
+        };
+    }
+
+    // 雪花動畫
+    const canvas = document.getElementById('snow');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+    let snowflakes = [];
+
+    function initSnow() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        snowflakes = [];
+        for (let i = 0; i < 100; i++) {
+            snowflakes.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 4 + 1,
+                d: Math.random() * 1 + 0.5
+            });
+        }
+    }
+
+    function drawSnow() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        snowflakes.forEach(flake => {
+            ctx.moveTo(flake.x, flake.y);
+            ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+        });
+        ctx.fill();
+        moveSnow();
+    }
+
+    function moveSnow() {
+        snowflakes.forEach(flake => {
+            flake.y += flake.d;
+            flake.x += Math.sin(flake.y * 0.01);
+            if (flake.y > height) {
+                flake.y = -flake.r;
+                flake.x = Math.random() * width;
+            }
+        });
+    }
+
+    window.addEventListener('resize', initSnow);
+    initSnow();
+    setInterval(drawSnow, 33);
 </script>
 
 </body>

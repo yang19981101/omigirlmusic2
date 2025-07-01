@@ -27,7 +27,7 @@
     }
     #passwordPage, #surprisePage {
         position: relative;
-        z-index: 1;
+        z-index: 2;
     }
     h1 {
         font-size: 38px;
@@ -80,28 +80,46 @@
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.3); }
     }
-
-    /* 新增響應式 YouTube 播放器容器 */
     .video-wrapper {
         position: relative;
         width: 100%;
-        max-width: 426px;  /* 最大寬度 */
+        max-width: 426px;
         margin: 0 auto 40px auto;
-        padding-top: 56.25%; /* 16:9比例 */
+        padding-top: 56.25%;
         overflow: hidden;
+        z-index: 2;
     }
-
     .video-wrapper iframe {
         position: absolute;
         top: 0; left: 0;
         width: 100%; height: 100%;
         border: 0;
     }
+
+    /* 聖誕老人雪橇和麋鹿動畫 */
+    #sleigh {
+      position: fixed;
+      top: 50px;
+      left: -300px;
+      width: 280px;
+      animation: flySleigh 20s linear infinite;
+      pointer-events: none;
+      z-index: 3;
+      user-select: none;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.6));
+    }
+    @keyframes flySleigh {
+      0% { left: -300px; }
+      100% { left: 110vw; }
+    }
 </style>
 </head>
 <body>
 
 <canvas id="snow-canvas"></canvas>
+
+<!-- 聖誕老人雪橇和麋鹿圖片 -->
+<img id="sleigh" src="https://i.imgur.com/WrvifTJ.png" alt="聖誕老人雪橇和麋鹿" />
 
 <div id="passwordPage">
     <h1>🎁 有份屬於妳的小驚喜</h1>

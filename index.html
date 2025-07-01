@@ -82,32 +82,50 @@
 <script>
     const passwordCorrect = "19981101";
 
-    const quotes = [
-        "忙碌的妳，記得別忘了喘口氣，我一直在這裡默默支持。",
-        "就算世界再亂，至少我希望成為妳最安定的避風港。",
-        "妳的堅強是我見過最美的風景，請相信妳沒那麼孤單。",
-        "今天不管多累，記得還有一個人想妳的笑容。",
-        "夜班再晚，也願這份溫柔陪妳渡過黑夜。",
-        "妳看不見的努力，我都看在眼裡，也深深佩服。",
-        "這世界雖然複雜，妳的真誠和熱情卻最值得珍惜。"
-    ];
-
-    // 你給的7首YouTube影片ID（從連結提取）
-    const videoIds = [
-        "DY2eiv9rHF4",
-        "E9yi19u0Y6o",
-        "XIYTWH_iUqU",
-        "pwvoH4aGbmE",
-        "CpodRBeFl3c",
-        "XIYTWH_iUqU",
-        "qzfi7cM4zW0"
+    // 7組語錄與對應 YouTube 影片 ID
+    const pairs = [
+        { quote: "忙碌的妳，記得別忘了喘口氣，我一直在這裡默默支持。", videoId: "DY2eiv9rHF4" },
+        { quote: "就算世界再亂，至少我希望成為妳最安定的避風港。", videoId: "E9yi19u0Y6o" },
+        { quote: "妳的堅強是我見過最美的風景，請相信妳沒那麼孤單。", videoId: "XIYTWH_iUqU" },
+        { quote: "今天不管多累，記得還有一個人想妳的笑容。", videoId: "pwvoH4aGbmE" },
+        { quote: "夜班再晚，也願這份溫柔陪妳渡過黑夜。", videoId: "CpodRBeFl3c" },
+        { quote: "妳看不見的努力，我都看在眼裡，也深深佩服。", videoId: "XIYTWH_iUqU" },
+        { quote: "這世界雖然複雜，妳的真誠和熱情卻最值得珍惜。", videoId: "qzfi7cM4zW0" }
     ];
 
     let player;
-    let currentVideoIndex = null;
+    let playlist = [];  // 洗牌後的順序
+    let currentIndex = -1;
+
+    // 洗牌函數 (Fisher–Yates shuffle)
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // 初始化洗牌
+    function initPlaylist() {
+        playlist = shuffle([...Array(pairs.length).keys()]);
+        currentIndex = -1;
+    }
+
+    // 播放下一首
+    function playNext() {
+        currentIndex++;
+        if(currentIndex >= playlist.length) {
+            initPlaylist();  // 全播完再洗牌重來
+            currentIndex = 0;
+        }
+        const idx = playlist[currentIndex];
+        document.getElementById("quote").innerText = pairs[idx].quote;
+        player.loadVideoById(pairs[idx].videoId);
+        player.playVideo();
+    }
 
     function onYouTubeIframeAPIReady() {
-        // 初始化但不播放，等密碼解鎖後播放
         player = new YT.Player('player', {
             height: '240',
             width: '426',
@@ -118,30 +136,16 @@
                 'rel': 0,
                 'showinfo': 0,
                 'modestbranding': 1,
-                'loop': 1,
-                'playlist': ''
+                'loop': 0
             },
             events: {
-                'onStateChange': onPlayerStateChange
+                'onStateChange': function(event) {
+                    if(event.data === YT.PlayerState.ENDED) {
+                        playNext();
+                    }
+                }
             }
         });
-    }
-
-    function onPlayerStateChange(event) {
-        if(event.data === YT.PlayerState.ENDED) {
-            playNextVideo();
-            player.playVideo();  // 保證自動播放下一首
-        }
-    }
-
-    function playNextVideo() {
-        let nextIndex;
-        do {
-            nextIndex = Math.floor(Math.random() * videoIds.length);
-        } while(nextIndex === currentVideoIndex);
-        currentVideoIndex = nextIndex;
-        const vid = videoIds[currentVideoIndex];
-        player.loadVideoById(vid);
     }
 
     function checkPassword() {
@@ -151,13 +155,8 @@
             document.getElementById("passwordPage").style.display = "none";
             document.getElementById("surprisePage").style.display = "block";
 
-            // 隨機暖心語錄
-            const quoteIndex = Math.floor(Math.random() * quotes.length);
-            document.getElementById("quote").innerText = quotes[quoteIndex];
-
-            // 播放第一首歌
-            playNextVideo();
-            player.playVideo();
+            initPlaylist();
+            playNext();
         } else {
             errorMsg.innerText = "密碼錯誤，再試試看吧～";
         }
